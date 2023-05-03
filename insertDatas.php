@@ -3,23 +3,20 @@
 use GuzzleHttp\Client;
 
 require_once __DIR__ . '/vendor/autoload.php';
+require_once 'HandleUsers.php';
 
+/**
+ * On récupère les données d'une api stockée sur mockaroo.com
+ */
 $httpClient = new Client();
 $url = "https://my.api.mockaroo.com/users_composer.json?key=da14fd70";
 $response = $httpClient->request('GET', $url, ['verify' => false]);
-
 $users = json_decode($response->getBody());
 
+dump($users); // un tableau d'objets (StdClass)
 
-dump($users);
-$pdo = new PDO("mysql:host=localhost;dbname=composer_users;port=3306;charset=utf8", "toto", "toto");
-$sql = "INSERT INTO users (`first_name`,`last_name`,`email`,`gender`,`ip_address`)
- VALUES (:first_name,:last_name,:email,:gender,:ip_address)";
-$stmt = $pdo->prepare($sql);
-$stmt->execute([
-    ":first_name" => "Toto",
-    ":last_name" => "TOTO",
-    ":email" => "toto@toto.fr",
-    ":gender" => "M",
-    ":ip_address" => "001.111.222.255"
-]);
+/**
+ * on enregistre les données en bdd
+ */
+$handleUsers = new HandleUsers();
+$handleUsers->saveUsersFromApi($users);
